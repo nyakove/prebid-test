@@ -5,6 +5,7 @@ const jsonfile = require('jsonfile');
 var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
+const fs = require('fs.extra');
 const urlencodedParser = bodyParser.urlencoded({
     extended: false
 });
@@ -15,36 +16,17 @@ const file = 'test.json'
 
 function build() {
 
-    console.dir('Start building...')
+    console.dir('Start building...');
 
     gulp.series('build')(function (err) {
         if (err) {
             console.log(err)
         } else {
-            jsonfile.readFile(file)
-                .then(obj => console.dir(obj))
-                .catch(error => console.error(error));
-            console.dir('Building OK!')
+            console.dir('Building OK!');
         }
     });
+
 }
-
-function buildWebpack() {
-
-    console.dir('Start building...')
-
-    gulp.series('scripts')(function (err) {
-        if (err) {
-            console.log(err)
-        } else {
-            jsonfile.readFile(file)
-                .then(obj => console.dir(obj))
-                .catch(error => console.error(error));
-            console.dir('Building OK!')
-        }
-    });
-}
-
 
 // GET method route
 app.get('/', urlencodedParser, function (req, res) {
@@ -53,22 +35,43 @@ app.get('/', urlencodedParser, function (req, res) {
 
 // POST method route
 app.post('/', urlencodedParser, function (req, res) {
-    console.dir(req.body.rubicon);
-    if (req.body.rubicon) {
-        buildWebpack();
-    }
 
-    res.send('Your prebid.js is building rigth now and will be');
-    
-    // build();
+    var obj = req.body;
+    var modulesNames = [];
+    if (obj.rubicon) {
+        modulesNames.push(obj.rubicon)
+    }
+    if (obj.appnexus) {
+        modulesNames.push(obj.appnexus)
+    }
+    if (obj.criteo) {
+        modulesNames.push(obj.criteo)
+    }
+    console.dir(modulesNames);
+
+    var json = JSON.stringify(modulesNames);
+
+    var path = './modules.json';
+
+    fs.outputJson(path, modulesNames, err => {
+        if (err) {
+            console.log(err)
+        }
+    })
+
+    build();
+
+    //res.send('Your prebid.js file is building right now and can be downloaded soon...');
+
+    setTimeout(function () {
+        res.redirect('/download');
+    }, 30000)
+
+});
+
+app.get('/download', function (req, res) {
+    var file = __dirname + `/build/dist/${(new Date()).toISOString().substring(0, 10)}_prebid.js`;
+    res.download(file);
 });
 
 app.listen(7000);
-
-/*http.createServer(function(request, response){
-    response.writeHead(200, {'Content-Type': 'text/x-json'});
-    response.write(obj);
-    response.end();
-}).listen(7000);*/
-
-//setTimeout(build, 5000);

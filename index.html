@@ -1,19 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Config your prebid file</title>
+
+    <style>
+        #container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        #chkbx-container {
+            display: flex;
+        }
+    </style>
 </head>
+
 <body>
-        <h1>Введите данные</h1>
-    <form action="/" method="post">
-        <label>Имя</label><br>
-        <input type="text" name="userName" /><br><br>
-        <label>Возраст</label><br>
-        <input type="number" name="userAge" /><br><br>
-                <label>Rubicon</label><br>
-        <input type="checkbox" name="rubicon"><br><br>
-        <input type="submit" value="Отправить" />
-    </form>
+    <div id="container">
+        <h1>Choose adapters</h1>
+        <form action="/" method="post" name="adapters">
+            <div id="chkbx-container"><label>Rubicon</label><br>
+                <input type="checkbox" name="rubicon" value="rubiconBidAdapter" checked>
+                <label>AppNexus</label><br>
+                <input type="checkbox" name="appnexus" value="appnexusBidAdapter">
+                <label>Criteo</label>
+                <input type="checkbox" name="criteo" value="criteoBidAdapter">
+            </div>
+            <input type="submit" name="btn" value="Generate" />
+        </form>
+    </div>
+
+    <script>
+        function isSelected() {
+            if (document.adapters.rubicon.checked || document.adapters.appnexus.checked || document.adapters.criteo.checked) {
+                document.adapters.btn.disabled = false;
+            } else document.adapters.btn.disabled = true;
+        }
+
+        document.onload = isSelected();
+        document.adapters.rubicon.addEventListener('change', isSelected);
+        document.adapters.appnexus.addEventListener('change', isSelected);
+        document.adapters.criteo.addEventListener('change', isSelected);
+
+    </script>
+
 </body>
+
 </html>

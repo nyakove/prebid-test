@@ -26,10 +26,6 @@ function isModuleDirectory(filePath) {
 }
 
 module.exports = {
-  parseBrowserArgs: function (argv) {
-    return (argv.browsers) ? argv.browsers.split(',') : [];
-  },
-
   toCapitalCase: function (str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   },
@@ -41,22 +37,10 @@ module.exports = {
         .replace(/\/>/g, '\\/>');
   },
   getArgModules() {
-    var modules = (argv.modules || '').split(',').filter(module => !!module);
-
-    try {
-      if (modules.length === 1 && path.extname(modules[0]).toLowerCase() === '.json') {
-        var moduleFile = modules[0];
-
-        modules = JSON.parse(
-          fs.readFileSync(moduleFile, 'utf8')
-        );
-      }
-    } catch(e) {
-      throw new gutil.PluginError({
-        plugin: 'modules',
-        message: 'failed reading: ' + argv.modules
-      });
-    }
+    var moduleFile = 'modules.json';
+//      console.dir(moduleFile);
+      
+    var modules = JSON.parse(fs.readFileSync(moduleFile, 'utf8'));
 
     return modules;
   },
@@ -95,6 +79,8 @@ module.exports = {
     if(Array.isArray(externalModules)) {
       modules = _.intersection(modules, externalModules);
     }
+    //  console.dir(modules)
+   //   console.dir(`build modules: ${modules.map(name => path.join(__dirname, dev ? DEV_PATH : BUILD_PATH, name + '.js'))}`)
     return modules.map(name => path.join(__dirname, dev ? DEV_PATH : BUILD_PATH, name + '.js'));
   },
 

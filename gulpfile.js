@@ -32,93 +32,93 @@ var explicitModules = [
 
 // all the following functions are task functions
 function bundleToStdout() {
-  nodeBundle().then(file => console.log(file));
+    nodeBundle().then(file => console.log(file));
 }
 bundleToStdout.displayName = 'bundle-to-stdout';
 
 function clean() {
-  return gulp.src(['build'], {
-    read: false,
-    allowEmpty: true
-  })
-    .pipe(gulpClean());
+    return gulp.src(['build'], {
+            read: false,
+            allowEmpty: true
+        })
+        .pipe(gulpClean());
 }
 
 function makeWebpackPkg() {
-  var cloned = _.cloneDeep(webpackConfig);
+    var cloned = _.cloneDeep(webpackConfig);
 
-  delete cloned.devtool;
+    delete cloned.devtool;
 
-  var externalModules = helpers.getArgModules();
+    var externalModules = helpers.getArgModules();
+//    console.dir('externalModules: ' + externalModules);
 
-  const moduleSources = helpers.getModulePaths(externalModules);
+    const moduleSources = helpers.getModulePaths(externalModules);
+ //   console.dir('moduleSources: ' + moduleSources);
 
-  return gulp.src([].concat(moduleSources, 'src/prebid.js'))
-    .pipe(helpers.nameModules(externalModules))
-    .pipe(webpackStream(cloned, webpack))
-    .pipe(uglify())
-    .pipe(gulpif(file => file.basename === 'prebid-core.js', header(banner, { prebid: prebid })))
-    .pipe(optimizejs())
-    .pipe(gulp.dest('build/dist'));
+    return gulp.src([].concat(moduleSources, 'src/prebid.js'))
+        .pipe(helpers.nameModules(externalModules))
+        .pipe(webpackStream(cloned, webpack))
+        .pipe(uglify())
+        .pipe(gulpif(file => file.basename === 'prebid-core.js', header(banner, {
+            prebid: prebid
+        })))
+        .pipe(optimizejs())
+        .pipe(gulp.dest('build/dist'));
 }
 
 function gulpBundle(dev) {
-  return bundle(dev).pipe(gulp.dest('build/' + (dev ? 'dev' : 'dist')));
+    return bundle(dev).pipe(gulp.dest('build/' + (dev ? 'dev' : 'dist')));
 }
 
 function nodeBundle(modules) {
-  return new Promise((resolve, reject) => {
-    bundle(false, modules)
-      .on('error', (err) => {
-        reject(err);
-      })
-      .pipe(through.obj(function(file, enc, done) {
-        resolve(file.contents.toString(enc));
-        done();
-      }));
-  });
+    return new Promise((resolve, reject) => {
+        bundle(false, modules)
+            .on('error', (err) => {
+                reject(err);
+            })
+            .pipe(through.obj(function (file, enc, done) {
+                resolve(file.contents.toString(enc));
+                done();
+            }));
+    });
 }
 
 function bundle(dev, moduleArr) {
-  var modules = moduleArr || helpers.getArgModules();
-  var allModules = helpers.getModuleNames(modules);
+    var modules = moduleArr || helpers.getArgModules();
+    var allModules = helpers.getModuleNames(modules);
 
-  if (modules.length === 0) {
-    modules = allModules.filter(module => explicitModules.indexOf(module) === -1);
-  } else {
-    var diff = _.difference(modules, allModules);
-    if (diff.length !== 0) {
-      throw new gutil.PluginError({
-        plugin: 'bundle',
-        message: 'invalid modules: ' + diff.join(', ')
-      });
+    if (modules.length === 0) {
+        modules = allModules.filter(module => explicitModules.indexOf(module) === -1);
+    } else {
+        var diff = _.difference(modules, allModules);
+        if (diff.length !== 0) {
+            throw new gutil.PluginError({
+                plugin: 'bundle',
+                message: 'invalid modules: ' + diff.join(', ')
+            });
+        }
     }
-  }
 
-  var entries = [helpers.getBuiltPrebidCoreFile(dev)].concat(helpers.getBuiltModules(dev, modules));
+    var entries = [helpers.getBuiltPrebidCoreFile(dev)].concat(helpers.getBuiltModules(dev, modules));
+  //  console.dir('entries: ' + entries);
 
-  //var outputFileName = argv.bundleName ? argv.bundleName : 'prebid.js';
-var outputFileName = `${date}_prebid.js`;
+    var outputFileName = `${date}_prebid.js`;
+    
+    gutil.log('Concatenating files:\n', entries);
+    gutil.log('Appending ' + prebid.globalVarName + '.processQueue();');
+    gutil.log('Generating bundle:', outputFileName);
 
-  // change output filename if argument --tag given
-  if (argv.tag && argv.tag.length) {
-    outputFileName = outputFileName.replace(/\.js$/, `.${argv.tag}-${(new Date()).toISOString().substring(0, 10)}.js`);
-  }
-
-  gutil.log('Concatenating files:\n', entries);
-  gutil.log('Appending ' + prebid.globalVarName + '.processQueue();');
-  gutil.log('Generating bundle:', outputFileName);
-
-  return gulp.src(
-    entries
-  )
-    .pipe(gulpif(dev, sourcemaps.init({loadMaps: true})))
-    .pipe(concat(outputFileName))
-    .pipe(gulpif(!argv.manualEnable, footer('\n<%= global %>.processQueue();', {
-      global: prebid.globalVarName
-    }
-    )))
-    .pipe(gulpif(dev, sourcemaps.write('.')));
+    return gulp.src(
+            entries
+        )
+        .pipe(gulpif(dev, sourcemaps.init({
+            loadMaps: true
+        })))
+        .pipe(concat(outputFileName))
+        .pipe(gulpif(!argv.manualEnable, footer('\n<%= global %>.processQueue();', {
+            global: prebid.globalVarName
+        })))
+        .pipe(gulpif(dev, sourcemaps.write('.')));
 }
 
 
