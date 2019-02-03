@@ -58,14 +58,24 @@ app.post('/', urlencodedParser, function (req, res) {
             console.log(err)
         }
     })
+    console.dir('Start building...');
 
-    build();
+    gulp.series('build')(function (err) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.dir('Building OK!');
+            res.redirect('/download');
+        }
+    });
+
+    //build();
 
     //res.send('Your prebid.js file is building right now and can be downloaded soon...');
 
-    setTimeout(function () {
+/*    setTimeout(function () {
         res.redirect('/download');
-    }, 30000)
+    }, 30000)*/
 
 });
 
