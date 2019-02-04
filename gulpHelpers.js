@@ -13,7 +13,6 @@ const BUILD_PATH = './build/dist';
 const DEV_PATH = './build/dev';
 
 
-// get only subdirectories that contain package.json with 'main' property
 function isModuleDirectory(filePath) {
   try {
     const manifestPath = path.join(filePath, MANIFEST);
@@ -38,7 +37,6 @@ module.exports = {
   },
   getArgModules() {
     var moduleFile = 'modules.json';
-//      console.dir(moduleFile);
       
     var modules = JSON.parse(fs.readFileSync(moduleFile, 'utf8'));
 
@@ -79,8 +77,6 @@ module.exports = {
     if(Array.isArray(externalModules)) {
       modules = _.intersection(modules, externalModules);
     }
-    //  console.dir(modules)
-   //   console.dir(`build modules: ${modules.map(name => path.join(__dirname, dev ? DEV_PATH : BUILD_PATH, name + '.js'))}`)
     return modules.map(name => path.join(__dirname, dev ? DEV_PATH : BUILD_PATH, name + '.js'));
   },
 

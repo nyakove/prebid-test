@@ -25,16 +25,9 @@ var dateString = 'Updated : ' + date;
 var banner = '/* <%= prebid.name %> v<%= prebid.version %>\n' + dateString + ' */\n';
 var analyticsDirectory = '../analytics';
 
-// these modules must be explicitly listed in --modules to be included in the build, won't be part of "all" modules
 var explicitModules = [
   'pre1api'
 ];
-
-// all the following functions are task functions
-function bundleToStdout() {
-    nodeBundle().then(file => console.log(file));
-}
-bundleToStdout.displayName = 'bundle-to-stdout';
 
 function clean() {
     return gulp.src(['build'], {
@@ -50,10 +43,8 @@ function makeWebpackPkg() {
     delete cloned.devtool;
 
     var externalModules = helpers.getArgModules();
-//    console.dir('externalModules: ' + externalModules);
 
     const moduleSources = helpers.getModulePaths(externalModules);
- //   console.dir('moduleSources: ' + moduleSources);
 
     return gulp.src([].concat(moduleSources, 'src/prebid.js'))
         .pipe(helpers.nameModules(externalModules))
@@ -68,19 +59,6 @@ function makeWebpackPkg() {
 
 function gulpBundle(dev) {
     return bundle(dev).pipe(gulp.dest('build/' + (dev ? 'dev' : 'dist')));
-}
-
-function nodeBundle(modules) {
-    return new Promise((resolve, reject) => {
-        bundle(false, modules)
-            .on('error', (err) => {
-                reject(err);
-            })
-            .pipe(through.obj(function (file, enc, done) {
-                resolve(file.contents.toString(enc));
-                done();
-            }));
-    });
 }
 
 function bundle(dev, moduleArr) {
@@ -100,10 +78,9 @@ function bundle(dev, moduleArr) {
     }
 
     var entries = [helpers.getBuiltPrebidCoreFile(dev)].concat(helpers.getBuiltModules(dev, modules));
-  //  console.dir('entries: ' + entries);
 
     var outputFileName = `${date}_prebid.js`;
-    
+
     gutil.log('Concatenating files:\n', entries);
     gutil.log('Appending ' + prebid.globalVarName + '.processQueue();');
     gutil.log('Generating bundle:', outputFileName);
@@ -129,10 +106,3 @@ gulp.task('build-bundle-prod', gulp.series(makeWebpackPkg, gulpBundle.bind(null,
 gulp.task('build', gulp.series(clean, 'build-bundle-prod'));
 
 gulp.task('default', gulp.series(clean, makeWebpackPkg));
-
-
-// other tasks
-gulp.task(bundleToStdout);
-//gulp.task('bundle', gulpBundle.bind(null, false)); // used for just concatenating pre-built files with no build step
-
-module.exports = nodeBundle;

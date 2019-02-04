@@ -11,7 +11,7 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             }
         
         #container {
@@ -21,7 +21,15 @@
         
         #chkbx-container {
             display: flex;
+            justify-content: space-around;
+            width: 250px;
         }
+        
+       input[type="submit"] {
+          margin-top: 10px;
+           float: right;
+        }
+        
     </style>
 </head>
 
@@ -51,7 +59,6 @@
         document.adapters.rubicon.addEventListener('change', isSelected);
         document.adapters.appnexus.addEventListener('change', isSelected);
         document.adapters.criteo.addEventListener('change', isSelected);
-
     </script>
 
 </body>
