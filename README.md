@@ -1,8 +1,8 @@
 **Install:**
 
-    git clone https://github.com/nyakove/prebit-test.git
+    git clone https://github.com/nyakove/prebid-test.git
 
-    cd prebit-test
+    cd prebid-test
 
     npm install
 
