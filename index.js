@@ -54,5 +54,6 @@ app.get('/download', function (req, res) {
     res.download(file);
 });
 
-app.listen(7000);
-console.dir ('Server started at 127.0.0.1:7000');
+app.listen(7000, function () {
+    console.dir('Server started at 127.0.0.1:7000');
+});
