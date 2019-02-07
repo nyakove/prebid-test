@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>getFiles</title>
+</head>
+
+<body>
+
+    <select name="adaptersList" id="adaptersList" multiple></select>
+
+    <script>
+        fetch('./getList')
+            .then(function(response) {
+                if (response.status != 200) {
+                    console.log('It looks like we have some problems!')
+                }
+                return (response.json())
+            })
+            .then(function(json) {
+                for (adapter of json) {
+                    let option = document.createElement('option');
+                    option.innerHTML = adapter;
+                    document.getElementById('adaptersList').appendChild(option);
+                }
+            })
+            .catch(err => console.error(err));
+
+    </script>
+</body>
+
+</html>
