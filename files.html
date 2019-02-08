@@ -16,7 +16,7 @@
                 if (response.status != 200) {
                     console.log('It looks like we have some problems!')
                 }
-                return (response.json())
+                return (response.json());
             })
             .then(function(json) {
                 for (adapter of json) {

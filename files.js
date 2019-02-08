@@ -1,5 +1,6 @@
 const _fs = require('fs');
 const express = require('express');
+const favicon = require('express-favicon');
 const app = express();
 
 let adaptersList = async function () {
@@ -9,7 +10,6 @@ let adaptersList = async function () {
     };
 
     var filesArray = await _fs.promises.readdir(path, options);
-
 
     var files = [];
 
@@ -21,16 +21,17 @@ let adaptersList = async function () {
     await _fs.promises.writeFile('test.json', JSON.stringify(files));
 
     let json = await _fs.promises.readFile('test.json', 'utf-8');
-    
+
     return json;
 
 }
 
+app.use(favicon(__dirname + '/favicon.ico'));
 
 app.get('/getList', async function (req, res) {
     let response = await adaptersList();
+    res.type('json');
     res.send(response);
-    res.end();
 });
 
 app.get('/', function (req, res) {
